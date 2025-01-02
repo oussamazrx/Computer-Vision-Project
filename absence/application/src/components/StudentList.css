@@ -1,0 +1,18 @@
+.StudentList {
+    margin: 20px;
+  }
+  
+  .StudentList h2 {
+    margin-bottom: 20px;
+  }
+  
+  .StudentList ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .StudentList li {
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 5px;
+  }
