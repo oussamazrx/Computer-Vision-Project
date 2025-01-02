@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import axios from 'axios';
 import Webcam from 'react-webcam';
+import Swal from 'sweetalert2';  // Import SweetAlert2
 import './App.css';
 
 function App() {
@@ -11,8 +11,6 @@ function App() {
   const [className, setClassName] = useState('');
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [message, setMessage] = useState('');
-  const [isError, setIsError] = useState(false);
   const [useWebcam, setUseWebcam] = useState(false);
   const webcamRef = useRef(null);
 
@@ -27,7 +25,10 @@ function App() {
   const captureImage = () => {
     const imageSrc = webcamRef.current.getScreenshot();
     setImagePreview(imageSrc);
-    setImage(dataURLtoFile(imageSrc, 'capture.png'));
+    
+    // Generate a custom file name using the first and last name
+    const customFileName = `${firstName}_${lastName}.png`;  // Custom name using first and last name
+    setImage(dataURLtoFile(imageSrc, customFileName));  // Pass the custom filename
   };
 
   const dataURLtoFile = (dataurl, filename) => {
@@ -44,18 +45,15 @@ function App() {
 
   const validateInputs = () => {
     if (!firstName || !lastName || !email || !phone || !className || !image) {
-      setMessage('All fields are required!');
-      setIsError(true);
+      Swal.fire('Error', 'All fields are required!', 'error');
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setMessage('Invalid email address!');
-      setIsError(true);
+      Swal.fire('Error', 'Invalid email address!', 'error');
       return false;
     }
     if (!/^\d{10}$/.test(phone)) {
-      setMessage('Phone number must be 10 digits!');
-      setIsError(true);
+      Swal.fire('Error', 'Phone number must be 10 digits!', 'error');
       return false;
     }
     return true;
@@ -75,25 +73,32 @@ function App() {
     formData.append('image', image);
 
     try {
-      const response = await axios.post('http://localhost:5000/add_student', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await fetch('http://localhost:5000/add_student', {
+        method: 'POST',
+        body: formData,
       });
-      setMessage(response.data.message);
-      setIsError(false);
-      // Clear form after successful submission
-      setFirstName('');
-      setLastName('');
-      setEmail('');
-      setPhone('');
-      setClassName('');
-      setImage(null);
-      setImagePreview(null);
-      setUseWebcam(false);
+
+      const result = await response.json();
+
+      if (response.status === 200) {
+        // Student added successfully
+        Swal.fire('Success', result.message, 'success');
+        // Clear form after successful submission
+        setFirstName('');
+        setLastName('');
+        setEmail('');
+        setPhone('');
+        setClassName('');
+        setImage(null);
+        setImagePreview(null);
+        setUseWebcam(false);
+      } else {
+        // Something went wrong (response.status !== 200)
+        Swal.fire('Error', result.error || 'There was an error processing your request!', 'error');
+      }
     } catch (error) {
-      setMessage('There was an error adding the student!');
-      setIsError(true);
+      // Catch errors from the request
+      Swal.fire('Error', 'There was an error adding the student!', 'error');
       console.error('Error:', error);
     }
   };
@@ -101,11 +106,6 @@ function App() {
   return (
     <div className="App">
       <h1>Ajouter un étudiant</h1>
-      {message && (
-        <div className={`message ${isError ? 'error' : 'success'}`}>
-          {message}
-        </div>
-      )}
       <form onSubmit={handleSubmit}>
         <input
           type="text"

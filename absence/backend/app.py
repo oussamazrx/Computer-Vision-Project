@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify
 from flask_mysqldb import MySQL
 import os
 from werkzeug.utils import secure_filename
+from flask_cors import CORS  # Import CORS
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Configuration de la base de données MySQL
 app.config['MYSQL_HOST'] = 'localhost'
@@ -45,8 +47,12 @@ def add_student():
     if not allowed_file(image.filename):
         return jsonify({'error': 'Invalid file type!'}), 400
 
-    filename = secure_filename(image.filename)
-    image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    # Generate a custom file name using the first and last name
+    file_extension = image.filename.rsplit('.', 1)[1].lower()
+    new_filename = f"{first_name}_{last_name}.{file_extension}"
+
+    new_filename = secure_filename(new_filename)
+    image_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
     image.save(image_path)
 
     cursor = mysql.connection.cursor()
