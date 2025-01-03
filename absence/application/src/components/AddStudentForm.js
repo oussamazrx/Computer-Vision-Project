@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Webcam from 'react-webcam';
 import Swal from 'sweetalert2';
 import './AddStudentForm.css';
@@ -14,6 +15,7 @@ function AddStudentForm() {
   const [imagePreview, setImagePreview] = useState(null);
   const [useWebcam, setUseWebcam] = useState(false);
   const webcamRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch the list of classes from the backend
@@ -26,15 +28,9 @@ function AddStudentForm() {
       })
       .then(data => {
         console.log('Fetched classes:', data); // Log the fetched classes
-        if (Array.isArray(data) && data.length > 0) {
-          setClasses(data);
-        } else {
-          console.error('Fetched data is not in expected format', data);
-        }
+        setClasses(data);
       })
-      .catch(error => {
-        console.error('Error fetching classes:', error);
-      });
+      .catch(error => console.error('Error fetching classes:', error));
   }, []);
 
   const handleImageChange = (e) => {
@@ -124,6 +120,12 @@ function AddStudentForm() {
   return (
     <div className="AddStudentForm">
       <h2>Add Student</h2>
+      <button
+        onClick={() => navigate('/students')}
+        className="mb-4 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+      >
+        Back to Students
+      </button>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -149,23 +151,17 @@ function AddStudentForm() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
         />
-        
         <select
           value={classId}
           onChange={(e) => setClassId(e.target.value)}
         >
           <option value="">Select Class</option>
-          {classes.length === 0 ? (
-            <option value="" disabled>No classes available</option>
-          ) : (
-            classes.map((classItem) => (
-              <option key={classItem.id} value={classItem.id}>
-                {classItem.name}
-              </option>
-            ))
-          )}
+          {classes.map((classItem) => (
+            <option key={classItem.id} value={classItem.id}>
+              {classItem.name}
+            </option>
+          ))}
         </select>
-
         <div className="image-upload">
           {!useWebcam ? (
             <>

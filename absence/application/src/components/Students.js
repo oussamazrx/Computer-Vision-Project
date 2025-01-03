@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
 
 const Students = ({ classFilter }) => {
   const [students, setStudents] = useState([]);
+  const navigate = useNavigate();  // Initialize the navigate function from useNavigate hook
 
   useEffect(() => {
     if (classFilter) {
@@ -24,6 +26,12 @@ const Students = ({ classFilter }) => {
   return (
     <div>
       <h2>Students in Class {classFilter}</h2>
+      <button
+        onClick={() => navigate('/add_student')}  // Use navigate function here
+        className="mb-4 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+      >
+        Add Student
+      </button>
       {students.length === 0 ? (
         <p>No students found for this class.</p>
       ) : (

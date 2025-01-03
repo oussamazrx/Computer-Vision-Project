@@ -213,7 +213,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/add-student" element={<AddStudentForm />} />
+        <Route path="/add_student" element={<AddStudentForm />} />
         <Route path="/students" element={<Students classFilter={selectedClass} />} />
         <Route path="/classes" element={<ClassList classes={classes} onSelectClass={handleSelectClass} />} />
       </Routes>
