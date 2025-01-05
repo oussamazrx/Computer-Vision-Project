@@ -122,7 +122,7 @@ function AddStudentForm() {
       <h2>Add Student</h2>
       <button
         onClick={() => navigate('/students')}
-        className="mb-4 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+        className="back-button"
       >
         Back to Students
       </button>

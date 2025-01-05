@@ -32,7 +32,7 @@ function ClassList() {
 
   if (loading) {
     return (
-      <div className="p-6 bg-white rounded-lg shadow-md">
+      <div className="p-6 bg-white rounded-lg shadow-md max-w-md mx-auto">
         <div className="text-center">Loading classes...</div>
       </div>
     );
@@ -40,14 +40,14 @@ function ClassList() {
 
   if (error) {
     return (
-      <div className="p-6 bg-white rounded-lg shadow-md">
+      <div className="p-6 bg-white rounded-lg shadow-md max-w-md mx-auto">
         <div className="text-red-500">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
+    <div className="p-6 bg-white rounded-lg shadow-md max-w-md mx-auto">
       <h2 className="text-xl font-bold mb-6">List of Classes</h2>
       {classes.length === 0 ? (
         <p className="text-gray-500">No classes found.</p>

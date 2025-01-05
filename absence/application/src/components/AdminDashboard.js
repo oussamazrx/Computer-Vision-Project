@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AddStudentForm from './AddStudentForm';
 import ClassList from './ClassList';
 import StudentList from './StudentList';
-import './AdminDashboard.css';
+import './AddStudentForm.css';
 
 function AdminDashboard() {
   const [classes, setClasses] = useState([]);
