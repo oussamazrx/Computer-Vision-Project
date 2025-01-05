@@ -21,6 +21,9 @@ const Navbar = () => {
         <li className={isActive('/classes')}>
           <Link to="/classes">Classes</Link>
         </li>
+        <li className={isActive('/add_class')}>
+          <Link to="/add_class">Add class</Link>
+        </li>      
         <li className={isActive('/students')}>
           <Link to="/students">Students</Link>
         </li>
