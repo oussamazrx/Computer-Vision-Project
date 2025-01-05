@@ -101,7 +101,7 @@ app.secret_key = os.urandom(24)
 # Configuration de la base de données MySQL
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = 'inout'
 app.config['MYSQL_DB'] = 'student_db'
 
 mysql = MySQL(app)
@@ -141,6 +141,80 @@ def admin_dashboard():
     if not session.get('admin_logged_in'):
         return jsonify({'error': 'Unauthorized'}), 401
     return jsonify({'message': 'Welcome to the admin dashboard'})
+
+
+# Route to get all majors
+@app.route('/majors', methods=['GET'])
+def get_majors():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT id, name FROM majors")
+    majors = cursor.fetchall()
+    cursor.close()
+
+    majors_list = [{"id": major_id, "name": major_name} for major_id, major_name in majors]
+
+    return jsonify(majors_list)
+
+# Route to get all professors (for coordinator dropdown)
+@app.route('/professors', methods=['GET'])
+def get_professors():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM professors")
+    professors = cursor.fetchall()
+    cursor.close()
+
+    professors_list = [{"id": professor_id, "name": professor_name} for professor_id, professor_name in professors]
+
+    return jsonify(professors_list)
+
+
+@app.route('/classes', methods=['GET'])
+def get_classes():
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT c.id, c.name, m.name AS major, c.promo, CONCAT(p.first_name, ' ', p.last_name) AS coordinator
+        FROM classes c
+        JOIN majors m ON c.major_id = m.id
+        JOIN professors p ON c.coordinator_id = p.id
+    """)
+    classes = cursor.fetchall()
+    cursor.close()
+
+    classes_list = [{
+        "id": class_id, 
+        "name": class_name, 
+        "major": major_name, 
+        "promo": promo_year,
+        "coordinator": coordinator_name
+    } for class_id, class_name, major_name, promo_year, coordinator_name in classes]
+
+    return jsonify(classes_list)
+
+# Route to add a new class
+@app.route('/add_class', methods=['POST'])
+def add_class():
+    # Get form data
+    class_name = request.form.get('name')
+    major_id = request.form.get('major_id')
+    promo = request.form.get('promo')
+    coordinator_id = request.form.get('coordinator_id')
+
+    if not all([class_name, major_id, promo, coordinator_id]):
+        return jsonify({'error': 'All fields are required!'}), 400
+
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute(
+            "INSERT INTO classes (name, major_id, promo, coordinator_id) VALUES (%s, %s, %s, %s)",
+            (class_name, major_id, promo, coordinator_id)
+        )
+        mysql.connection.commit()
+        cursor.close()
+        return jsonify({'message': f'Class "{class_name}" added successfully'}), 201
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({'error': 'Failed to add class!', 'details': str(e)}), 500
+
 
 @app.route('/add_student', methods=['POST'])
 def add_student():
@@ -187,16 +261,6 @@ def add_student():
         mysql.connection.rollback()
         return jsonify({'error': 'Failed to add student!'}), 500
 
-@app.route('/classes', methods=['GET'])
-def get_classes():
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id, name FROM classes")
-    classes = cursor.fetchall()
-    cursor.close()
-
-    classes_list = [{"id": class_id, "name": class_name} for class_id, class_name in classes]
-    
-    return jsonify(classes_list)
 
 @app.route('/classes/<int:class_id>/students', methods=['GET'])
 def get_students(class_id):

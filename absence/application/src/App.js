@@ -185,6 +185,7 @@ import Dashboard from './components/Dashboard';
 import AddStudentForm from './components/AddStudentForm';
 import Students from './components/Students';
 import ClassList from './components/ClassList';
+import AddClassForm from './components/AddClassForm';
 
 function App() {
   return (
@@ -198,6 +199,7 @@ function App() {
             <Route path="/add_student" element={<AddStudentForm />} />
             <Route path="/students" element={<Students />} />
             <Route path="/classes" element={<ClassList />} />
+            <Route path="/add_class" element={<AddClassForm />} />
           </Routes>
         </div>
       </div>
