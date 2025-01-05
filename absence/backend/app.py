@@ -200,15 +200,65 @@ def get_classes():
 
 @app.route('/classes/<int:class_id>/students', methods=['GET'])
 def get_students(class_id):
-    # if not session.get('admin_logged_in'):
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id, first_name, last_name FROM students WHERE class_id = %s", (class_id,))
-    students = cursor.fetchall()
-    cursor.close()
-    students_list = [{"id": student_id, "first_name": first_name, "last_name": last_name} for student_id, first_name, last_name in students]
-    return jsonify(students_list)
+    try:
+        # Modified query to get all student details
+        cursor.execute("""
+            SELECT id, first_name, last_name, email, phone, image_path 
+            FROM students 
+            WHERE class_id = %s
+        """, (class_id,))
+        students = cursor.fetchall()
+        
+        # Convert to list of dictionaries with all fields
+        students_list = []
+        for student in students:
+            students_list.append({
+                "id": student[0],
+                "first_name": student[1],
+                "last_name": student[2],
+                "email": student[3],
+                "phone": student[4],
+                "image_path": student[5]
+            })
+        
+        return jsonify(students_list)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+
+
+@app.route('/students', methods=['GET'])
+def get_all_students():
+    cursor = mysql.connection.cursor()
+    try:
+        # Fetch all students
+        cursor.execute("""
+            SELECT id, first_name, last_name, email, phone, image_path, class_id 
+            FROM students
+        """)
+        students = cursor.fetchall()
+        
+        # Convert to list of dictionaries
+        students_list = []
+        for student in students:
+            students_list.append({
+                "id": student[0],
+                "first_name": student[1],
+                "last_name": student[2],
+                "email": student[3],
+                "phone": student[4],
+                "image_path": student[5],
+                "class_id": student[6]  # Include class_id for reference
+            })
+        
+        return jsonify(students_list)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
 
 if __name__ == '__main__':
     app.run(debug=True)

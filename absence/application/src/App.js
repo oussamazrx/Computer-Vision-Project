@@ -177,9 +177,9 @@
 // }
 
 // export default App;
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Navbar';
 import Login from './components/login';
 import Dashboard from './components/Dashboard';
 import AddStudentForm from './components/AddStudentForm';
@@ -187,36 +187,20 @@ import Students from './components/Students';
 import ClassList from './components/ClassList';
 
 function App() {
-  const [classes, setClasses] = useState([]);
-  const [selectedClass, setSelectedClass] = useState(null);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/classes')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setClasses(data);
-      })
-      .catch(error => console.error('Error fetching classes:', error));
-  }, []);
-
-  const handleSelectClass = (classId) => {
-    setSelectedClass(classId);
-  };
-
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/add_student" element={<AddStudentForm />} />
-        <Route path="/students" element={<Students classFilter={selectedClass} />} />
-        <Route path="/classes" element={<ClassList classes={classes} onSelectClass={handleSelectClass} />} />
-      </Routes>
+      <div className="App">
+        <Navbar />
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/add_student" element={<AddStudentForm />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/classes" element={<ClassList />} />
+          </Routes>
+        </div>
+      </div>
     </Router>
   );
 }
