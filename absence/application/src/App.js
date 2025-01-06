@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard';
 import AddStudentForm from './components/AddStudentForm';
 import Students from './components/Students';
 import ClassList from './components/ClassList';
+import StudentDetails from './components/StudentDetails';
 import FaceRecognitionApp from './components/FaceRecognitionApp';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/add_student" element={<AddStudentForm />} />
             <Route path="/students" element={<Students />} />
+            <Route path="/students/:studentId" element={<StudentDetails />} />
             <Route path="/classes" element={<ClassList />} />
             <Route path="/face-recognition" element={<FaceRecognitionApp />} />
           </Routes>
