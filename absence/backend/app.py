@@ -40,20 +40,35 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Path to known faces directory
-path = r'C:\Users\mekka\Downloads\test\RL\basicTrading\Computer-Vision-Project\absence\backend\faces'
-images = []
-classNames = []
+# Load known faces and names from the database
+def load_known_faces():
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute("SELECT first_name, last_name, image_path FROM students")
+        students = cursor.fetchall()
+        images = []
+        classNames = []
+        for student in students:
+            image_path = student['image_path']
+            if os.path.exists(image_path):
+                img = cv2.imread(image_path)
+                if img is not None:
+                    images.append(img)
+                    classNames.append(f"{student['first_name']} {student['last_name']}")
+                else:
+                    print(f"Warning: Could not read image {image_path}")
+            else:
+                print(f"Warning: Image path {image_path} does not exist")
+        return images, classNames
+    except Exception as e:
+        print(f"Error loading known faces: {e}")
+        return [], []
+    finally:
+        cursor.close()
+        connection.close()
 
-# Load known faces and names
-personsList = os.listdir(path)
-for cl in personsList:
-    curPersonn = cv2.imread(f'{path}/{cl}')
-    if curPersonn is None:
-        print(f"Warning: Could not read image {cl}")
-    else:
-        images.append(curPersonn)
-        classNames.append(os.path.splitext(cl)[0])
+images, classNames = load_known_faces()
 
 # Function to encode faces
 def findEncodings(images):
@@ -203,7 +218,7 @@ def get_students(class_id):
     cursor = connection.cursor()
     try:
         cursor.execute("""
-            SELECT id, first_name, last_name, email, phone, image_path 
+            SELECT id, first_name, last_name, class_id, email, phone, image_path 
             FROM students 
             WHERE class_id = %s
         """, (class_id,))
