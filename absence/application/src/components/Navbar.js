@@ -27,6 +27,9 @@ const Navbar = () => {
         <li className={isActive('/add_student')}>
           <Link to="/add_student">Add Student</Link>
         </li>
+        <li className={isActive('/face-recognition')}>
+          <Link to="/face-recognition">Face Recognition</Link>
+        </li>
       </ul>
     </nav>
   );
